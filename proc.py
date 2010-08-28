@@ -29,8 +29,8 @@ def handle(bot,parts):
 def cmd_PRIVMSG(bot,parts):
     parts[0] = parts[0][1:]
     try:
-        if self.database:
-            db = _mysql.connect(host=self.database["hostname"], port=self.database["port"], user=self.database["user"], passwd=self.database["password"], db=self.database["database"])
+        if bot.database:
+            db = _mysql.connect(host=bot.database["hostname"], port=bot.database["port"], user=bot.database["user"], passwd=bot.database["password"], db=bot.database["database"])
             db.query("INSERT INTO privmsg (time,nick,channel,message) VALUES ('" + str(int(time.time())) + "','" + _mysql.escape_string(parts[0].split('!')[0]) + "', '" + _mysql.escape_string(parts[2]) + "', '" + _mysql.escape_string(parts[3][1:]) + "')")
             db.close()
     except:
@@ -156,6 +156,26 @@ def serv_TOPIC(bot,parts):
 def serv_NETINFO(bot,parts):
     bot.registry["initialized"] = 1
     initialize(bot)
+    modload(bot,"alias")
+    modload(bot,"antischool")
+    modload(bot,"bond")
+    modload(bot,"calc")
+    modload(bot,"feed")
+    modload(bot,"fifo")
+    modload(bot,"game")
+    modload(bot,"hax")
+    modload(bot,"joinstab")
+    modload(bot,"linux")
+    modload(bot,"logs")
+    modload(bot,"modelist")
+    modload(bot,"misc")
+    modload(bot,"remind")
+    modload(bot,"topic")
+    modload(bot,"woot")
+    modload(bot,"wow")
+    modload(bot,"ip")
+    modload(bot,"translate")
+
 
 def initialize(bot):
     bot.send("NICK " + bot.settings["nick"] + " 1 " + "0" + " " + bot.settings["nick"] + " \0037*\003 " + bot.settings["servername"] + " 0 :" + bot.settings["nick"])
