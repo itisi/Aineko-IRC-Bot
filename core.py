@@ -41,8 +41,10 @@ class bot:
         self.servsend("PASS :" + self.connection['password'])
         self.servsend("SERVER " + self.settings['servername'] + " " + str(self.settings['numeric']) + " :" + self.settings['description'])
         self.loop()
-    def send(self,message,output=True):
-        message = ":" + self.settings["nick"] + " " + message.replace("\n","").replace("\r","")[:510]
+    def send(self,message,output=True,sendnick=0):
+        if not sendnick:
+            sendnick=self.settings["nick"]
+        message = ":" + sendnick + " " + message.replace("\n","").replace("\r","")[:510]
         self.connection['socket'].send(message + "\r\n")
         print "SENDING: " + message
     def servsend(self,message,output=True):
@@ -68,7 +70,7 @@ class bot:
     def speak(self, channel, message, nick=0):
         if not nick:
             nick=self.settings["nick"]
-        self.send(":" + nick + " PRIVMSG " + channel + " :" + message)
+        self.send("PRIVMSG " + channel + " :" + message,sendnick=nick)
     def handle(self,line):
         print line
         parts = line.split(" ",3)
