@@ -6,7 +6,7 @@ from time import time
 class bot:
     def __init__(self,configfile="aineko.conf"):
         if not os.path.isfile(configfile):
-            exit("There is no config file " + configfile)
+            exit("Error: There is no config file " + configfile)
         import ConfigParser
         config = ConfigParser.RawConfigParser()
         config.read(configfile)
@@ -23,7 +23,7 @@ class bot:
         self.connection = {'host':config.get('Server','hostname'),
                            'port':config.getint('Server','port'),
                            'password':config.get('Server','password')}
-        self.settings = {'servername':config.get('Bot','hostname'),
+        self.settings = {'servername':config.get('Bot','servername'),
                          'description':config.get('Bot','serverdescription'),
                          'numeric':config.getint('Bot','servernumeric'),
                          'nick':config.get('Bot','defaultnick')}
@@ -39,7 +39,7 @@ class bot:
         self.connection['socket'] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connection['socket'].connect((self.connection['host'],self.connection['port']))
         self.servsend("PASS :" + self.connection['password'])
-        self.servsend("SERVER " + self.settings['servername'] + " " + self.settings['numeric'] + " :" + self.settings['description'])
+        self.servsend("SERVER " + self.settings['servername'] + " " + str(self.settings['numeric']) + " :" + self.settings['description'])
         self.loop()
     def send(self,message,output=True):
         self.connection['socket'].send(message.replace("\n","").replace("\r","")[:510] + "\r\n")
@@ -66,13 +66,13 @@ class bot:
         return message.splitlines()
     def speak(self, channel, message, nick=0):
         if not nick:
-            nick=self.connection["nick"]
+            nick=self.settings["nick"]
         self.send(":" + nick + " PRIVMSG " + channel + " :" + message)
     def handle(self,line):
         print line
         parts = line.split(" ",3)
         while len(parts) <= 3:
-            parts.append(self.connection["nick"])
+            parts.append(self.settings["nick"])
         if parts[0] == "PING":
             self.servsend("PONG " + parts[1])
         if parts[1][0] == ":":

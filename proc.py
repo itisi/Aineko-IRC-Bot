@@ -156,38 +156,18 @@ def serv_TOPIC(bot,parts):
 def serv_NETINFO(bot,parts):
     bot.registry["initialized"] = 1
     initialize(bot)
-    modload(bot,"alias")
-    modload(bot,"antischool")
-    modload(bot,"bond")
-    modload(bot,"calc")
-    modload(bot,"feed")
-    modload(bot,"fifo")
-    modload(bot,"game")
-    modload(bot,"hax")
-    #modload(bot,"im")
-    modload(bot,"joinstab")
-    modload(bot,"linux")
-    modload(bot,"logs")
-    modload(bot,"modelist")    
-    modload(bot,"misc")
-    modload(bot,"remind")
-    modload(bot,"topic")
-    modload(bot,"woot")
-    modload(bot,"wow")
-    modload(bot,"ip")
-    modload(bot,"translate")
 
 def initialize(bot):
-    bot.send("NICK " + bot.connection["nick"] + " 1 " + "0" + " " + bot.connection["nick"] + " \0037*\003 MOGGET.MOGGET.MOGGET 0 :" + bot.connection["nick"])
-    bot.send(":" + bot.connection["nick"] + " v " + bot.connection["nick"] + " +Wqp")
+    bot.send("NICK " + bot.settings["nick"] + " 1 " + "0" + " " + bot.settings["nick"] + " \0037*\003 " + bot.settings["servername"] + " 0 :" + bot.settings["nick"])
+    bot.send(":" + bot.settings["nick"] + " v " + bot.settings["nick"] + " +Wqp")
     for channel in bot.registry["channels"]:
-        bot.send(":" + bot.connection["nick"] + " JOIN " + channel)
-        bot.send(":" + bot.connection["nick"] + " MODE " + channel + " +v " + bot.connection["nick"])
+        bot.send(":" + bot.settings["nick"] + " JOIN " + channel)
+        bot.send(":" + bot.settings["nick"] + " MODE " + channel + " +v " + bot.settings["nick"])
     for nick in bot.registry["nicks"]:
         bot.speak(nick,"\001VERSION\001")
 def cmd_KILL(bot,parts):
     time.sleep(10)
-    if parts[2].lower() == bot.connection["nick"].lower():
+    if parts[2].lower() == bot.settings["nick"].lower():
         initialize(bot)
 def cmd_TOPIC(bot,parts):
     bot.registry["channels"][parts[2]]["topic"] = parts[3].split(" ",2)[2][1:]
