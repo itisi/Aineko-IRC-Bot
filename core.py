@@ -42,7 +42,8 @@ class bot:
         self.servsend("SERVER " + self.settings['servername'] + " " + str(self.settings['numeric']) + " :" + self.settings['description'])
         self.loop()
     def send(self,message,output=True):
-        self.connection['socket'].send(message.replace("\n","").replace("\r","")[:510] + "\r\n")
+        message = ":" + self.settings["nick"] + " " + message.replace("\n","").replace("\r","")[:510]
+        self.connection['socket'].send(message + "\r\n")
         print "SENDING: " + message
     def servsend(self,message,output=True):
         self.connection['socket'].send(message.replace("\n","").replace("\r","")[:510] + "\r\n")

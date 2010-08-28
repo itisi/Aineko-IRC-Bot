@@ -1,3 +1,4 @@
+#to add: make constructor that checks config file for [WoW]/channel and writes to config file if it doen't find the setting.
 import traceback
 def cmd_privmsg(bot,parts):
 	if parts[2].lower() == "#wow":
