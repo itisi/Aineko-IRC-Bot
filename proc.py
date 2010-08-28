@@ -178,11 +178,11 @@ def serv_NETINFO(bot,parts):
 
 
 def initialize(bot):
-    bot.send("NICK " + bot.settings["nick"] + " 1 " + "0" + " " + bot.settings["nick"] + " \0037*\003 " + bot.settings["servername"] + " 0 :" + bot.settings["nick"])
-    bot.send(":" + bot.settings["nick"] + " v " + bot.settings["nick"] + " +Wqp")
+    bot.servsend("NICK " + bot.settings["nick"] + " 1 " + "0" + " " + bot.settings["nick"] + " \0037*\003 " + bot.settings["servername"] + " 0 :" + bot.settings["nick"])
+    bot.send("v " + bot.settings["nick"] + " +Wqp")
     for channel in bot.registry["channels"]:
-        bot.send(":" + bot.settings["nick"] + " JOIN " + channel)
-        bot.send(":" + bot.settings["nick"] + " MODE " + channel + " +v " + bot.settings["nick"])
+        bot.send("JOIN " + channel)
+        bot.send("MODE " + channel + " +v " + bot.settings["nick"])
     for nick in bot.registry["nicks"]:
         bot.speak(nick,"\001VERSION\001")
 def cmd_KILL(bot,parts):

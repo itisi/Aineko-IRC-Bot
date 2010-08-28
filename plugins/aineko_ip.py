@@ -3,7 +3,7 @@ import socket, _mysql
 def start(bot):
 	if not "ip" in bot.registry:
 		bot.registry["ip"] = {}
-	for user in dbgetall():
+	for user in dbgetall(bot):
 		nick = user[0]
 		ip = user[1].split(".")
 		if not ip[0] in bot.registry["ip"]:
@@ -19,7 +19,7 @@ def start(bot):
 def cmd_userinit(bot,parts):
 	ip = socket.gethostbyname(parts[3].split()[2])
 	nick = parts[1]
-	dbinsert(nick,ip)
+	dbinsert(nick,ip,bot)
 	ip = ip.split(".")
 	if not ip[0] in bot.registry["ip"]:
 		bot.registry["ip"][ip[0]] = {}
@@ -34,7 +34,7 @@ def cmd_userinit(bot,parts):
 def cmd_nick(bot,parts):
 	nick = parts[2].lower()
 	ip = socket.gethostbyname(bot.registry["nicks"][nick]["host"])
-	dbinsert(nick,ip)
+	dbinsert(nick,ip,bot)
 	ip = ip.split(".")
 	if not ip[0] in bot.registry["ip"]:
 		bot.registry["ip"][ip[0]] = {}
@@ -86,14 +86,14 @@ def pm_ip(bot,parts):
 		return "No other nicks"
 	else:
 		return retvar
-def dbinsert(nick,ip):
+def dbinsert(nick,ip,bot):
 	db = _mysql.connect(host=bot.database["hostname"], port=bot.database["port"], user=bot.database["user"], passwd=bot.database["password"], db=bot.database["database"])
 	db.query("SELECT count(*) FROM iplog WHERE nick='" + _mysql.escape_string(nick) + "' AND ip='" + _mysql.escape_string(ip) + "';")
 	total = db.store_result().fetch_row()[0][0]
 	if total == "0":
 		db.query("INSERT INTO iplog (nick, ip) VALUES ('" + _mysql.escape_string(nick) + "', '" + _mysql.escape_string(ip) + "');")
 	db.close()
-def dbgetall():
+def dbgetall(bot):
 	db = _mysql.connect(host=bot.database["hostname"], port=bot.database["port"], user=bot.database["user"], passwd=bot.database["password"], db=bot.database["database"])
 	db.query("SELECT * FROM iplog")
 	a = db.store_result().fetch_row(100000)
