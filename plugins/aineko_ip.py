@@ -87,14 +87,14 @@ def pm_ip(bot,parts):
 	else:
 		return retvar
 def dbinsert(nick,ip):
-	db = _mysql.connect(host=self.database["hostname"], port=self.database["port"], user=self.database["user"], passwd=self.database["password"], db=self.database["database"])
+	db = _mysql.connect(host=bot.database["hostname"], port=bot.database["port"], user=bot.database["user"], passwd=bot.database["password"], db=bot.database["database"])
 	db.query("SELECT count(*) FROM iplog WHERE nick='" + _mysql.escape_string(nick) + "' AND ip='" + _mysql.escape_string(ip) + "';")
 	total = db.store_result().fetch_row()[0][0]
 	if total == "0":
 		db.query("INSERT INTO iplog (nick, ip) VALUES ('" + _mysql.escape_string(nick) + "', '" + _mysql.escape_string(ip) + "');")
 	db.close()
 def dbgetall():
-	db = _mysql.connect(host=self.database["hostname"], port=self.database["port"], user=self.database["user"], passwd=self.database["password"], db=self.database["database"])
+	db = _mysql.connect(host=bot.database["hostname"], port=bot.database["port"], user=bot.database["user"], passwd=bot.database["password"], db=bot.database["database"])
 	db.query("SELECT * FROM iplog")
 	a = db.store_result().fetch_row(100000)
 	db.close()
