@@ -27,4 +27,9 @@ def pm_dbusers(bot,parts):
 	r = db.store_result()
 	a = r.fetch_row()
 	return str(len(a)) + " active connections."
+def pm_temp(bot,parts):
+	a = open("/proc/acpi/thermal_zone/THM/temperature")
+	b = a.read()
+	a.close()
+	return "temp: " + b.split()[-2] + " C"
 

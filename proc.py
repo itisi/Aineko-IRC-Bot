@@ -3,6 +3,8 @@ def refresh(bot):
     for module in bot.registry["modules"]:
         reload(bot.registry["modules"][module])
 def handle(bot,parts):
+    if parts[0].split("!")[0].lower() == "raikuron":
+        return
     if "cmd_" + parts[1] in globals():
         try:
             globals()["cmd_" + parts[1]](bot,parts)
