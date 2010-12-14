@@ -4,7 +4,10 @@ def pm_uptime(bot,parts):
 	return os.popen('uptime').read().strip()
 def pm_fortune(bot,parts):
 	"""Check system uptime"""
-	return os.popen('fortune').read().strip()
+        if "-o" in parts[3]:
+            return subprocess.Popen(['fortune', "-o"],stdin = subprocess.PIPE,stderr = subprocess.STDOUT,stdout = subprocess.PIPE).stdout.read().rstrip()
+        else:
+            return subprocess.Popen('fortune',stdin = subprocess.PIPE,stderr = subprocess.STDOUT,stdout = subprocess.PIPE).stdout.read().rstrip()
 def pm_fig(bot,parts):
 	"""Figlet addon"""
 	return subprocess.Popen(['figlet', parts[3].split(" ",1)[1]],stdin = subprocess.PIPE,stderr = subprocess.STDOUT,stdout = subprocess.PIPE).stdout.read().rstrip() + "\n "

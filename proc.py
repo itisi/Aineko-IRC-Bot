@@ -251,8 +251,8 @@ def cmd_JOIN(bot,parts):
             bot.registry["channels"][channel]["nicks"] = []
             bot.registry["channels"][channel]["modes"] = {}
             if bot.registry["initialized"]:
-                bot.send(":Aineko JOIN " + channel)
-                bot.send(":Aineko MODE " + channel + " +v Aineko")
+                bot.send("JOIN " + channel)
+                bot.send("MODE " + channel + " +v Aineko")
                 bot.speak("#botfucking",parts[2] + " has been created. (" + parts[0][1:] + ")")
         if not parts[0][1:].lower() in bot.registry["channels"][channel]["nicks"]:
             bot.registry["channels"][channel]["nicks"].append(parts[0][1:].lower())
