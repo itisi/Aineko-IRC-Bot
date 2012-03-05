@@ -3,16 +3,14 @@ def refresh(bot):
     for module in bot.registry["modules"]:
         reload(bot.registry["modules"][module])
 def handle(bot,parts):
-    if parts[0].split("!")[0].lower() == "raikuron":
-        return
-    if "cmd_" + parts[1] in globals():
+    if "cmd_" + parts[1].lower() in globals():
         try:
-            globals()["cmd_" + parts[1]](bot,parts)
+            globals()["cmd_" + parts[1].lower()](bot,parts)
         except:
             traceback.print_exc()
-    if "serv_" + parts[0] in globals():
+    if "serv_" + parts[0].lower() in globals():
         try:
-            globals()["serv_" + parts[0]](bot,parts)
+            globals()["serv_" + parts[0].lower()](bot,parts)
         except:
             traceback.print_exc()
     elif parts[1].lower() in bot.registry["functions"]["cmd"]:
@@ -28,7 +26,8 @@ def handle(bot,parts):
                 else:
                     for line in response.split('\n'):
                         bot.speak(parts[0],line)
-def cmd_PRIVMSG(bot,parts):
+def cmd_privmsg(bot,parts):
+    parts[3] = parts[3].replace("$day",{6:"Sunday",0:"Monday",1:"Tuesday",2:"Wednesday",3:"Thursday",4:"Friday",5:"Saturday"}[time.localtime()[-3]])
     parts[0] = parts[0][1:]
     try:
         if bot.database:
@@ -90,7 +89,10 @@ def modload(bot,module):
             traceback.print_exc()
             retvar.append("Failed to load module. Probable syntax error.")
         return retvar
-
+def pm_dir(bot,parts):
+    module = parts[3].split()[-1]
+    if module in bot.registry["modules"]:
+        return str(dir(bot.registry["modules"][module]))
 def modunload(bot,module):
     if not module in bot.registry["modules"]:
         return ["Module does not exist"]
@@ -134,7 +136,7 @@ def pm_modreload(bot,parts):
         return "Module reloaded successfully."
     else:
         return "\n".join(status)
-def serv_NICK(bot,parts):
+def serv_nick(bot,parts):
     parts[1] = parts[1].lower()
     bot.registry["nicks"][parts[1]] = {}
     bot.registry["nicks"][parts[1]]["time"] = parts[3].split()[0]
@@ -150,12 +152,14 @@ def serv_NICK(bot,parts):
             for module in bot.registry["functions"]["cmd"]["userinit"]:
                 getattr(bot.registry["modules"][module],"cmd_userinit")(bot,parts)
         bot.speak(parts[1],"\001VERSION\001")
-def serv_TOPIC(bot,parts):
+def serv_topic(bot,parts):
     parts[1] = parts[1].lower()
     if not parts[1] in bot.registry["channels"]:
         bot.registry["channels"][parts[1]] = {}
     bot.registry["channels"][parts[1]]["topic"] = parts[3].split(" ",1)[1][1:]
-def serv_NETINFO(bot,parts):
+def last(lines, channel=False, nick=False):
+    pass
+def serv_netinfo(bot,parts):
     bot.registry["initialized"] = 1
     initialize(bot)
     modload(bot,"alias")
@@ -173,40 +177,41 @@ def serv_NETINFO(bot,parts):
     modload(bot,"misc")
     modload(bot,"remind")
     modload(bot,"topic")
-    modload(bot,"woot")
     modload(bot,"wow")
     modload(bot,"ip")
     modload(bot,"translate")
-
+    modload(bot,"url")
+    modload(bot,"wa")
+    modload(bot,"bigbrother")
+    modload(bot,"pdb")
 
 def initialize(bot):
-    bot.servsend("NICK " + bot.settings["nick"] + " 1 " + "0" + " " + bot.settings["nick"] + " \0037*\003 " + bot.settings["servername"] + " 0 :" + bot.settings["nick"])
+    now = str(int(time.time()))
+    bot.servsend("NICK " + bot.settings["nick"] + " " + now + " " + now + " " + bot.settings["nick"] + " \0034SURPRISE\003.\0036BUTTSECKS\003 " + bot.settings["servername"] + " 0 :" + bot.settings["nick"])
     bot.send("v " + bot.settings["nick"] + " +Wqp")
     for channel in bot.registry["channels"]:
         bot.send("JOIN " + channel)
         bot.send("MODE " + channel + " +v " + bot.settings["nick"])
     for nick in bot.registry["nicks"]:
         bot.speak(nick,"\001VERSION\001")
-def cmd_KILL(bot,parts):
+def cmd_kill(bot,parts):
     time.sleep(10)
     if parts[2].lower() == bot.settings["nick"].lower():
         initialize(bot)
-def cmd_TOPIC(bot,parts):
+def cmd_topic(bot,parts):
     bot.registry["channels"][parts[2]]["topic"] = parts[3].split(" ",2)[2][1:]
-def cmd_NICK(bot,parts):
-    if parts[0][1:].lower() == parts[2].lower():
-        pass
-    else:
+def cmd_nick(bot,parts):
+    if parts[0][1:].lower() != parts[2].lower():
         for channel in bot.registry["nicks"][parts[0][1:].lower()]["channels"]:
             try:
                 print channel,parts[0][1:].lower()
                 bot.registry["channels"][channel]["nicks"].remove(parts[0][1:].lower())
+                bot.registry["channels"][channel]["nicks"].append(parts[2].lower())
             except:
                 traceback.print_exc()
-        bot.registry["channels"][channel]["nicks"].append(parts[2].lower())
         bot.registry["nicks"][parts[2].lower()] = bot.registry["nicks"][parts[0][1:].lower()]
         del(bot.registry["nicks"][parts[0][1:].lower()])
-def cmd_QUIT(bot,parts):
+def cmd_quit(bot,parts):
     for channel in bot.registry["nicks"][parts[0][1:].lower()]["channels"]:
         try:
             bot.registry["channels"][channel]["nicks"].remove(parts[0][1:].lower())
@@ -217,20 +222,20 @@ def cmd_QUIT(bot,parts):
         except:
             traceback.print_exc()
     del(bot.registry["nicks"][parts[0][1:].lower()])
-def cmd_PART(bot,parts):
+def cmd_part(bot,parts):
     if parts[2].lower() in bot.registry["channels"] and parts[0][1:].lower() in bot.registry["channels"][parts[2].lower()]["nicks"]:
         bot.registry["channels"][parts[2].lower()]["nicks"].remove(parts[0][1:].lower())
         if not len(bot.registry["channels"][parts[2].lower()]["nicks"]):
             bot.send(":Aineko PART " + parts[2] + " :Channel disbanding.")
             del(bot.registry["channels"][parts[2].lower()])
             bot.speak("#botfucking",parts[2] + " is now empty.")
-def cmd_KICK(bot,parts):
+def cmd_kick(bot,parts):
     bot.registry["channels"][parts[2]]["nicks"].remove(parts[3].split()[0].lower())
     if not len(bot.registry["channels"][parts[2].lower()]["nicks"]):
         bot.send(":Aineko PART " + parts[2] + " :Channel disbanding.")
         del(bot.registry["channels"][parts[2].lower()])
         bot.speak("#botfucking",parts[2] + " is now empty.")
-def cmd_NOTICE(bot,parts):
+def cmd_notice(bot,parts):
     if len(parts[3].split()) > 5 and parts[3].split()[5] == "/whois":
         bot.speak("#botfucking",parts[3].split()[1] + " did a whois on me.")
         bot.speak(parts[3].split()[1],"RAWR")
@@ -240,7 +245,7 @@ def cmd_NOTICE(bot,parts):
         bot.speak(parts[3].split()[9],parts[3].split()[2] + " tried to kick me from this channel. " + parts[3][parts[3].find("("):])
     elif parts[3][1:9].lower() == '\001version':
         bot.registry["nicks"][parts[0][1:].lower()]["version"] = parts[3][10:-1]
-def cmd_JOIN(bot,parts):
+def cmd_join(bot,parts):
     parts[2] = parts[2].lower()
     channels = parts[2].split(",")
     for channel in channels:
@@ -256,7 +261,7 @@ def cmd_JOIN(bot,parts):
                 bot.speak("#botfucking",parts[2] + " has been created. (" + parts[0][1:] + ")")
         if not parts[0][1:].lower() in bot.registry["channels"][channel]["nicks"]:
             bot.registry["channels"][channel]["nicks"].append(parts[0][1:].lower())
-def cmd_MODE(bot,parts):
+def cmd_mode(bot,parts):
     mode = parts[3].split()[0]
     vars = parts[3].split()[1:]
     set = "+"
@@ -345,5 +350,5 @@ def cmd_MODE(bot,parts):
                     del(bot.registry["nicks"][parts[2].lower()]["modes"][change[1]])
     for change in changes:
         print change
-cmd_SVSMODE = cmd_MODE
-cmd_SVS2MODE = cmd_MODE
+cmd_svsmode = cmd_mode
+cmd_svs2mode = cmd_mode

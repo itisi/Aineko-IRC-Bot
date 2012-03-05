@@ -49,7 +49,8 @@ class bot:
         print "SENDING: " + message
     def servsend(self,message,output=True):
         self.connection['socket'].send(message.replace("\n","").replace("\r","")[:510] + "\r\n")
-        print "SENDING: " + message
+        if output:
+            print "SENDING: " + message
     def loop(self):
         while 1:
             for line in self.getlines():
@@ -77,7 +78,7 @@ class bot:
         while len(parts) <= 3:
             parts.append(self.settings["nick"])
         if parts[0] == "PING":
-            self.servsend("PONG " + parts[1])
+            self.servsend("PONG " + parts[1], False)
         if parts[1][0] == ":":
             parts[1] = parts[1][1:]
         if parts[2] and parts[2][0] == ":":
