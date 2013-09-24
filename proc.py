@@ -27,15 +27,6 @@ def handle(bot,parts):
                     for line in response.split('\n'):
                         bot.speak(parts[0],line)
 def cmd_privmsg(bot,parts):
-    parts[3] = parts[3].replace("$day",{6:"Sunday",0:"Monday",1:"Tuesday",2:"Wednesday",3:"Thursday",4:"Friday",5:"Saturday"}[time.localtime()[-3]])
-    parts[0] = parts[0][1:]
-    try:
-        if bot.database:
-            db = _mysql.connect(host=bot.database["hostname"], port=bot.database["port"], user=bot.database["user"], passwd=bot.database["password"], db=bot.database["database"])
-            db.query("INSERT INTO privmsg (time,nick,channel,message) VALUES ('" + str(int(time.time())) + "','" + _mysql.escape_string(parts[0].split('!')[0]) + "', '" + _mysql.escape_string(parts[2]) + "', '" + _mysql.escape_string(parts[3][1:]) + "')")
-            db.close()
-    except:
-        pass
     if parts[2][0] != '#':
         chan = parts[0]
     else:
@@ -89,10 +80,7 @@ def modload(bot,module):
             traceback.print_exc()
             retvar.append("Failed to load module. Probable syntax error.")
         return retvar
-def pm_dir(bot,parts):
-    module = parts[3].split()[-1]
-    if module in bot.registry["modules"]:
-        return str(dir(bot.registry["modules"][module]))
+
 def modunload(bot,module):
     if not module in bot.registry["modules"]:
         return ["Module does not exist"]
@@ -124,12 +112,14 @@ def pm_modload(bot,parts):
         return "Module loaded successfully."
     else:
         return "\n".join(status)
+pm_modlaod = pm_modload
 def pm_modunload(bot,parts):
     status = modunload(bot,parts[3].split()[1])
     if not len(status):
         return "Module unloaded successfully."
     else:
         return "\n".join(status)
+pm_modunlaod = pm_modunload
 def pm_modreload(bot,parts):
     status = modunload(bot,parts[3].split()[1]) + modload(bot,parts[3].split()[1])
     if not len(status):
@@ -161,39 +151,18 @@ def last(lines, channel=False, nick=False):
     pass
 def serv_netinfo(bot,parts):
     bot.registry["initialized"] = 1
+    modload(bot,"webirc")
     initialize(bot)
-    modload(bot,"alias")
-    modload(bot,"antischool")
-    modload(bot,"bond")
-    modload(bot,"calc")
-    modload(bot,"feed")
-    modload(bot,"fifo")
-    modload(bot,"game")
-    modload(bot,"hax")
-    modload(bot,"joinstab")
-    modload(bot,"linux")
-    modload(bot,"logs")
-    modload(bot,"modelist")
-    modload(bot,"misc")
-    modload(bot,"remind")
-    modload(bot,"topic")
-    modload(bot,"wow")
-    modload(bot,"ip")
-    modload(bot,"translate")
-    modload(bot,"url")
-    modload(bot,"wa")
-    modload(bot,"bigbrother")
-    modload(bot,"pdb")
 
 def initialize(bot):
     now = str(int(time.time()))
-    bot.servsend("NICK " + bot.settings["nick"] + " " + now + " " + now + " " + bot.settings["nick"] + " \0034SURPRISE\003.\0036BUTTSECKS\003 " + bot.settings["servername"] + " 0 :" + bot.settings["nick"])
+    bot.servsend("NICK " + bot.settings["nick"] + " " + now + " " + now + " " + bot.settings["nick"] + " \0034AINEKO\003.\0036WEBIRC\003 " + bot.settings["servername"] + " 0 :" + bot.settings["nick"])
     bot.send("v " + bot.settings["nick"] + " +Wqp")
     for channel in bot.registry["channels"]:
-        bot.send("JOIN " + channel)
-        bot.send("MODE " + channel + " +v " + bot.settings["nick"])
-    for nick in bot.registry["nicks"]:
-        bot.speak(nick,"\001VERSION\001")
+        pass
+        #bot.send("JOIN " + channel)
+        #bot.send("MODE " + channel + " +v " + bot.settings["nick"])
+    bot.send('JOIN #botfucking')
 def cmd_kill(bot,parts):
     time.sleep(10)
     if parts[2].lower() == bot.settings["nick"].lower():
